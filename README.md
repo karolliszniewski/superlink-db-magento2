@@ -23,65 +23,65 @@ DELETE FROM catalog_product_super_attribute
 WHERE product_id = @configurable_product_id;
 ```
 
-Explanation of this approach:
+## Explanation of This Approach
 
-We first identify the configurable product's entity_id using its SKU.
-We remove all entries from catalog_product_super_link that link simple products to this configurable product.
-We remove all attribute labels associated with this configurable product from catalog_product_super_attribute_label.
-Finally, we remove all super attribute entries for this configurable product from catalog_product_super_attribute.
+1. **Identify** the configurable product's `entity_id` using its SKU.
+2. **Remove** all entries from `catalog_product_super_link` that link simple products to this configurable product.
+3. **Remove** all attribute labels associated with this configurable product from `catalog_product_super_attribute_label`.
+4. **Remove** all super attribute entries for this configurable product from `catalog_product_super_attribute`.
 
-Why this way and not different:
+---
 
-Direct Database Manipulation:
+## Why This Way and Not Different?
 
-Pros:
+### Direct Database Manipulation
 
-It's faster than using Magento's ORM or API.
-It can be useful for bulk operations or when dealing with data inconsistencies.
+**Pros**:
+- Faster than using Magento's ORM or API.
+- Useful for bulk operations or resolving data inconsistencies.
 
+**Cons**:
+- Bypasses Magento's built-in logic and events.
+- Can lead to data integrity issues if not done carefully.
 
-Cons:
+### Using Magento's ORM or API
 
-Bypasses Magento's built-in logic and events.
-Can lead to data integrity issues if not done carefully.
+**Pros**:
+- Follows Magento's best practices.
+- Triggers relevant events and observers.
+- Maintains data integrity and consistency.
 
+**Cons**:
+- Slower, especially for bulk operations.
+- May not be sufficient for fixing certain types of data corruption.
 
+---
 
+## When to Use Direct Database Manipulation
 
-Using Magento's ORM or API (as in the previous PHP example):
+The database approach is generally recommended in specific scenarios:
+- **Data cleanup** or **correction** of large datasets.
+- **Fixing corrupted data** that can't be addressed through the standard API.
+- During **development or testing** phases where quick changes are needed.
 
-Pros:
+---
 
-Follows Magento's best practices.
-Triggers relevant events and observers.
-Maintains data integrity and consistency.
+### Important Considerations
 
+Directly manipulating the database:
+- Can lead to **indexing issues**.
+- Might not **update related caches**.
+- Could cause **inconsistencies** with other related data.
 
-Cons:
+---
 
-Can be slower, especially for bulk operations.
-May not be sufficient for fixing certain types of data corruption.
+## After Performing Direct Database Operations
 
+- **Reindex** affected indexes.
+- **Clear** relevant caches.
+- **Verify** the changes didn’t cause unintended side effects.
 
+---
 
+In a **production environment**, it's generally safer to use Magento's built-in methods unless there’s a specific reason to manipulate the database directly. Always ensure you have a **backup** before performing such operations.
 
-
-The database approach is generally recommended only in specific scenarios:
-
-Data cleanup or correction of large datasets.
-When dealing with corrupted data that can't be fixed through the standard API.
-During development or testing phases where quick changes are needed.
-
-However, it's crucial to note that directly manipulating the database:
-
-Can lead to indexing issues.
-Might not update related caches.
-Could cause inconsistencies with other related data.
-
-After performing direct database operations, you should:
-
-Reindex affected indexes.
-Clear relevant caches.
-Verify the changes didn't cause unintended side effects.
-
-In a production environment, it's generally safer to use Magento's built-in methods unless you have a specific reason to directly manipulate the database. Always ensure you have a backup before performing such operations.
